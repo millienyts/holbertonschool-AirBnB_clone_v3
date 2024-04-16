@@ -1,58 +1,90 @@
 #!/usr/bin/python3
-"""
-Endpoints for "/api/v1/states" API:
-GET - Retrieve all States.
-POST - Create a new State.
-PUT - Update an existing State.
-DELETE - Remove a State.
-"""
-from models import storage
+"""Script to handle all default RESTful API"""
+
+
 from models.state import State
+from models import storage
 from api.v1.views import app_views
-from flask import abort, jsonify, request
+from flask import jsonify, abort, make_response, request
+from flasgger.utils import swag_from
 
-@app_views.route("/states", strict_slashes=False, methods=["GET"])
-def get_all_states():
-    """Returns all States as JSON."""
-    return jsonify([state.to_dict() for state in storage.all(State).values()])
 
-@app_views.route("/states/<state_id>", strict_slashes=False, methods=["GET"])
+@app_views.route('/states', methods=['GET'], strict_slashes=False)
+@swag_from('/documentation/state/get_state.yml', methods=['GET'])
+def get_states():
+    """"Get all objects from State"""
+
+    obj_states = storage.all(State).values()
+    list_states = []
+    for state in obj_states:
+        list_states.append(state.to_dict())
+    return jsonify(list_states)
+
+
+@app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
+@swag_from('documentation/state/get_id_state.yml', methods=['get'])
 def get_state(state_id):
-    """Returns a State by ID as JSON, 404 if not found."""
-    result = storage.get(State, state_id)
-    return jsonify(result.to_dict()) if result else abort(404)
+    """ Raises error if not linked to any State """
 
-@app_views.route("/states/<state_id>", strict_slashes=False, methods=["DELETE"])
-def delete_state(state_id):
-    """Deletes a State by ID, returns {}, 200 if successful, 404 if not found."""
-    target = storage.get(State, state_id)
-    if not target:
-        abort(404)
-    storage.delete(target)
-    storage.save()
-    return jsonify({}), 200
-
-@app_views.route("/states/", strict_slashes=False, methods=["POST"])
-def create_state():
-    """Creates a new State based on JSON input, returns it as JSON, 201 if successful."""
-    new_state_json = request.get_json(silent=True)
-    if not new_state_json or 'name' not in new_state_json:
-        abort(400, "Invalid JSON or missing 'name' field")
-    new_state = State(**new_state_json)
-    storage.new(new_state)
-    storage.save()
-    return jsonify(new_state.to_dict()), 201
-
-@app_views.route("/states/<state_id>", strict_slashes=False, methods=["PUT"])
-def update_state(state_id):
-    """Updates a State by ID with JSON input, returns it as JSON, 200 if successful, 404 if not found."""
     state = storage.get(State, state_id)
     if not state:
         abort(404)
-    new_state_info = request.get_json(silent=True)
-    if not new_state_info:
-        abort(400, "Invalid JSON")
-    if 'name' in new_state_info:
-        state.name = new_state_info['name']
+
+    return jsonify(state.to_dict())
+
+
+@app_views.route('/states/<state_id>', methods=['DELETE'],
+                 strict_slashes=False)
+@swag_from('documentation/state/delete_state.yml', methods=['DELETE'])
+def delete_state(state_id):
+    """Deletes a State Object"""
+
+    state = storage.get(State, state_id)
+
+    if not state:
+        abort(404)
+
+    storage.delete(state)
     storage.save()
-    return jsonify(state.to_dict()), 200
+
+    return make_response(jsonify({}), 200)
+
+
+@app_views.route('/states', methods=['POST'], strict_slashes=False)
+@swag_from('documentation/state/post_state.yml', methods=['POST'])
+def post_state():
+    """Creates a State"""
+
+    if not request.get_json():
+        abort(400, description="Not a JSON")
+
+    if 'name' not in request.get_json():
+        abort(400, description="Missing name")
+
+    data = request.get_json()
+    instance = State(**data)
+    instance.save()
+    return make_response(jsonify(instance.to_dict()), 201)
+
+
+@app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
+@swag_from('documentation/state/put_state.yml', methods=['PUT'])
+def put_state(state_id):
+    """Updates a State"""
+
+    state = storage.get(State, state_id)
+
+    if not state:
+        abort(404)
+
+    if not request.get_json():
+        abort(400, description="Not a JSON")
+
+    ignore = ['id', 'created_at', 'updated_at']
+
+    data = request.get_json()
+    for key, value in data.items():
+        if key not in ignore:
+            setattr(state, key, value)
+    storage.save()
+    return make_response(jsonify(state.to_dict()), 200)

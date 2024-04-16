@@ -41,4 +41,4 @@ def model_statistics():
         "states": storage.count(State),
         "users": storage.count(User)
     }
-    return jsonify(stats), 200
+    return jsonify(stats)

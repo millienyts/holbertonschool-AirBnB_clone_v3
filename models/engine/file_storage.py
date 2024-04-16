@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Contains the FileStorage class
+FileStorage class for serializing instances to a JSON file & deserializing back to instances.
 """
 
 import json
@@ -12,59 +12,76 @@ from models.review import Review
 from models.state import State
 from models.user import User
 
+# Dictionary to map class names to their corresponding classes
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
 
 
 class FileStorage:
-    """serializes instances to a JSON file & deserializes back to instances"""
+    """A class for managing serialization and deserialization of instances."""
 
-    # string - path to the JSON file
-    __file_path = "file.json"
-    # dictionary - empty but will store all objects by <class name>.id
-    __objects = {}
+    __file_path = "file.json"  # Path to the JSON file
+    __objects = {}  # Dictionary to store all objects by <class name>.id
 
     def all(self, cls=None):
-        """returns the dictionary __objects"""
+        """
+        Returns a dictionary of all objects, optionally filtered by class.
+        """
         if cls is not None:
-            new_dict = {}
-            for key, value in self.__objects.items():
-                if cls == value.__class__ or cls == value.__class__.__name__:
-                    new_dict[key] = value
-            return new_dict
+            return {key: value for key, value in self.__objects.items()
+                    if isinstance(value, cls)}
         return self.__objects
 
+    def count(self, cls=None):
+        """
+        Returns the number of objects in storage matching the given class.
+        If no class is passed, returns the count of all objects in storage.
+        """
+        if cls is not None:
+            return sum(1 for obj in self.__objects.values() if isinstance(obj, cls))
+        else:
+            return len(self.__objects)
+
+    def get(self, cls, id):
+        """
+        Returns the object based on the class and its ID, or None if not found.
+        """
+        if cls in classes.values() and id is not None:
+            obj = self.all(cls)
+            for value in obj.values():
+                if value.id == id:
+                    return value
+        return None
+
     def new(self, obj):
-        """sets in __objects the obj with key <obj class name>.id"""
+        """Adds the object to the storage."""
         if obj is not None:
             key = obj.__class__.__name__ + "." + obj.id
             self.__objects[key] = obj
 
     def save(self):
-        """serializes __objects to the JSON file (path: __file_path)"""
-        json_objects = {}
-        for key in self.__objects:
-            json_objects[key] = self.__objects[key].to_dict()
+        """Serializes __objects to the JSON file."""
+        json_objects = {key: obj.to_dict() for key, obj in self.__objects.items()}
         with open(self.__file_path, 'w') as f:
             json.dump(json_objects, f)
 
     def reload(self):
-        """deserializes the JSON file to __objects"""
+        """Deserializes the JSON file to __objects."""
         try:
             with open(self.__file_path, 'r') as f:
-                jo = json.load(f)
-            for key in jo:
-                self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
-        except:
+                json_data = json.load(f)
+            for key, data in json_data.items():
+                cls_name = data["__class__"]
+                self.__objects[key] = classes[cls_name](**data)
+        except Exception:
             pass
 
     def delete(self, obj=None):
-        """delete obj from __objects if it’s inside"""
+        """Deletes an object from storage if it exists."""
         if obj is not None:
             key = obj.__class__.__name__ + '.' + obj.id
-            if key in self.__objects:
-                del self.__objects[key]
+            self.__objects.pop(key, None)
 
     def close(self):
-        """call reload() method for deserializing the JSON file to objects"""
+        """Reloads the objects from JSON file."""
         self.reload()

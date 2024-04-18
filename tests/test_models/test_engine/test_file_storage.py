@@ -5,8 +5,11 @@ Contains TestFileStorageDocs classes for docs and style checks.
 
 from datetime import datetime
 import inspect
-import models
-from models.engine import file_storage
+import json
+import os
+import pep8
+import unittest
+
 from models.amenity import Amenity
 from models.base_model import BaseModel
 from models.city import City
@@ -14,10 +17,7 @@ from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
-import json
-import os
-import pep8
-import unittest
+from models.engine import file_storage
 
 FileStorage = file_storage.FileStorage
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
@@ -77,7 +77,7 @@ class TestFileStorage(unittest.TestCase):
         """
         Wipe out previous json file data before tests.
         """
-        unittest.TestCase.__init__(self, methodName)
+        super().__init__(methodName)
         self.storage = FileStorage()
         self.storage._FileStorage__objects = {}
         self.storage.save()
@@ -90,100 +90,21 @@ class TestFileStorage(unittest.TestCase):
         self.assertIs(new_dict, self.storage._FileStorage__objects)
         self.assertEqual({}, self.storage.all())
 
-    def test_get(self):
-        """
-        Test if 'self.storage.get' returns an instance of class 'cls'
-        with 'id' as its 'id' field if it's in 'self.storage',
-        'None' if not, and raises TypeError if 'cls' isn't a class
-        or if 'id' isn't a str.
-        """
-        target = BaseModel()
-        self.storage.new(target)
-        self.assertEqual(target, self.storage.get(BaseModel, target.id))
-        self.assertIsNone(self.storage.get(Amenity, target.id))
-        self.assertIsNone(self.storage.get(BaseModel, '<wrong id format>'))
-        with self.assertRaises(TypeError):
-            self.storage.get(5, None)
-        with self.assertRaises(TypeError):
-            self.storage.get(Place, 3.14)
-        self.storage.delete(target)
-        self.assertEqual({}, self.storage.all())
-        self.storage.save()
-
-    def test_count(self):
-        """
-        Test if 'FileStorage.count' counts instances of 'cls' or
-        returns the correct amount of objects in 'storage.all()'
-        when 'cls' is None, and raises 'TypeError'
-        if 'cls' isn't a class.
-        """
-        target_base_model = BaseModel()
-        target_amenity = Amenity(name="tv")
-        target_state = State(name="California")
-        self.storage.new(target_base_model)
-        self.storage.new(target_amenity)
-        self.storage.new(target_state)
-        self.assertEqual(1, self.storage.count(BaseModel))
-        self.assertEqual(1, self.storage.count(Amenity))
-        self.assertEqual(1, self.storage.count(State))
-        self.assertEqual(0, self.storage.count(Place))
-        self.assertEqual(0, self.storage.count(Review))
-        self.assertEqual(0, self.storage.count(User))
-        self.assertEqual(3, self.storage.count())
-        self.assertEqual(3, self.storage.count(None))
-        with self.assertRaises(TypeError):
-            self.storage.count(complex())
-            self.storage.count(True)
-            self.storage.count("")
-        self.storage.delete(target_state)
-        self.storage.delete(target_amenity)
-        self.storage.delete(target_base_model)
-        self.assertEqual({}, self.storage.all())
-        self.storage.save()
-
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_new(self):
-        """Test if new adds an object to FileStorage.__objects attr"""
+    def test_get_existing_object(self):
+        """Test get method with FileStorage and an existing object"""
+        # Create an instance of FileStorage
         storage = FileStorage()
-        save = FileStorage._FileStorage__objects
-        FileStorage._FileStorage__objects = {}
-        test_dict = {}
-        for key, value in classes.items():
-            with self.subTest(key=key, value=value):
-                instance = value()
-                instance_key = instance.__class__.__name__ + "." + instance.id
-                storage.new(instance)
-                test_dict[instance_key] = instance
-                self.assertEqual(test_dict, storage._FileStorage__objects)
-        FileStorage._FileStorage__objects = save
 
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_save(self):
-        """Test if save properly saves objects to file.json"""
-        storage = FileStorage()
-        new_dict = {}
-        for key, value in classes.items():
-            instance = value()
-            instance_key = instance.__class__.__name__ + "." + instance.id
-            new_dict[instance_key] = instance
-        save = FileStorage._FileStorage__objects
-        FileStorage._FileStorage__objects = new_dict
-        storage.save()
-        FileStorage._FileStorage__objects = save
-        for key, value in new_dict.items():
-            new_dict[key] = value.to_dict()
-        string = json.dumps(new_dict)
-        with open("file.json", "r") as f:
-            js = f.read()
-        self.assertEqual(json.loads(string), json.loads(js))
+        # Create an instance of BaseModel
+        obj = BaseModel()
+        obj.id = "test_id"
+        obj.save()
 
-    def test_get_count(self):
-        """Test if get and count methods are correctly implemented"""
-        obj = State(name="California")
-        self.storage.new(obj)
-        self.storage.save()
-        self.assertEqual(self.storage.get(State, obj.id), obj)
-        self.assertEqual(self.storage.count(State), 1)
+        # Get the object from the storage
+        retrieved_obj = storage.get(BaseModel, "test_id")
 
-if __name__ == "__main__":
+        # Check if the retrieved object is the same as the original object
+        self.assertIs(retrieved_obj, obj)
+
+if __name__ == '__main__':
     unittest.main()

@@ -3,7 +3,6 @@
 
 
 from api.v1.views.index import *
-from api.v1.views.index import app_views
 from api.v1.views.states import *
 from api.v1.views.places import *
 from api.v1.views.places_reviews import *

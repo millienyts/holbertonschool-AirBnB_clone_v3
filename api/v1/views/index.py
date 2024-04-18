@@ -6,7 +6,7 @@ Contains routes for the API status page, showing the status (OK or not) and the 
 of objects of each type in 'storage.all()'.
 
 """
-from api.v1.views import app_views
+from flask import Blueprint, jsonify
 from models import storage
 from models.base_model import BaseModel
 from models.user import User
@@ -15,7 +15,8 @@ from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
-from flask import jsonify
+
+app_views = Blueprint('app_views', __name__)
 
 
 @app_views.route("/status")

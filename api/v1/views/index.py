@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """Index module for Flask app."""
 
 from api.v1.views import app_views

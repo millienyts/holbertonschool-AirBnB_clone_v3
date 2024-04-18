@@ -20,8 +20,8 @@ classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
 class FileStorage:
     """A class for managing serialization and deserialization of instances."""
 
-    __file_path = "file.json"  # Path to the JSON file
-    __objects = {}  # Dictionary to store all objects by <class name>.id
+    __file_path = "file.json"
+    __objects = {}
 
     def all(self, cls=None):
         """
@@ -43,15 +43,9 @@ class FileStorage:
             return len(self.__objects)
 
     def get(self, cls, id):
-        """
-        Returns the object based on the class and its ID, or None if not found.
-        """
-        if cls in classes.values() and id is not None:
-            obj = self.all(cls)
-            for value in obj.values():
-                if value.id == id:
-                    return value
-        return None
+    """Retrieve one object"""
+    key = "{}.{}".format(cls.__name__, id)
+    return self.__objects.get(key)
 
     def new(self, obj):
         """Adds the object to the storage."""

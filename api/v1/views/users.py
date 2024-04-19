@@ -1,3 +1,7 @@
+#!/usr/bin/python3
+"""Script to handle all default RESTful API"""
+
+
 from models.user import User
 from models import storage
 from flask import jsonify, abort, make_response, request

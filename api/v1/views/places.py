@@ -35,12 +35,11 @@ def search_places():
     for state_id in states:
         state = storage.get(State, state_id)
         if state:
-            cities.extend([city.id for city in state.cities])
+            for city in state.cities:
+                places = city.places
+                filtered_places.extend(places)
 
-    # Remove duplicate city ids
-    cities = list(set(cities))
-
-    # Retrieve places based on cities
+    # Retrieve places based on individually listed cities
     for city_id in cities:
         city = storage.get(City, city_id)
         if city:

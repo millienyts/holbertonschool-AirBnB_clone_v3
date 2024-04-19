@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-
-# This module defines the FileStorage class for
-# serializing and deserializing instances to JSON files
-
+"""
+    This module defines the FileStorage class for
+    serializing and deserializing instances to JSON files
+"""
 
 import json
 from models.base_model import BaseModel
@@ -31,9 +31,17 @@ class FileStorage:
     __file_path = "file.json"
     __objects = {}
 
-    def all(self):
+    def all(self, cls=None):
         """Returns the dictionary __objects"""
-        return self.__objects
+        if cls is None:
+            return self.__objects
+        else:
+            dict = {}
+            if cls in classes.values():
+                for key, value in self.__objects.items():
+                    if str(cls.__name__) in key:
+                        dict[key] = value
+                return dict
 
     def new(self, obj):
         """Sets in __objects the obj with key <obj class name>.id"""
@@ -66,9 +74,13 @@ class FileStorage:
 
     def get(self, cls, id):
         """Retrieve one object"""
-        if cls and id:
-            key = "{}.{}".format(cls.__name__, id)
-            return self.__objects.get(key)
+        if cls in classes.values() and id:
+            key = str(cls.__name__) + "." + id
+            if key in self.__objects.keys():
+                object = self.__objects[key]
+                return object
+            else:
+                return None
 
     def count(self, cls=None):
         """Count number of objects in storage"""

@@ -1,6 +1,16 @@
 #!/usr/bin/python3
 import json
 from models.base_model import BaseModel
+from models.amenity import Amenity
+from models.base_model import BaseModel
+from models.city import City
+from models.place import Place
+from models.review import Review
+from models.state import State
+from models.user import User
+
+classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+            "Place": Place, "Review": Review, "State": State, "User": User}
 
 class FileStorage:
     """Serializes instances to a JSON file and deserializes JSON file to instances"""
@@ -50,3 +60,8 @@ class FileStorage:
             return sum(1 for obj in self.__objects.values() if isinstance(obj, cls))
         else:
             return len(self.__objects)
+
+
+    def close(self):
+        """call reload() method for deserializing the JSON file to objects"""
+        self.reload()

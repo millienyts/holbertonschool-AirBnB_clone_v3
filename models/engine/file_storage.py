@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-"""
-    This module defines the FileStorage class for
-    serializing and deserializing instances to JSON files
-"""
+
+# This module defines the FileStorage class for
+# serializing and deserializing instances to JSON files
+
 
 import json
 from models.base_model import BaseModel

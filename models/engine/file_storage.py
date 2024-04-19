@@ -37,7 +37,9 @@ class FileStorage:
         otherwise, do nothing)."""
         try:
             with open(self.__file_path, mode="r", encoding="utf-8") as f:
-                self.__objects = {k: BaseModel(**v) for k, v in json.load(f).items()}
+                self.__objects = {
+                    k: BaseModel(**v) for k, v in json.load(f).items()
+                }
         except FileNotFoundError:
             pass
 
@@ -62,5 +64,5 @@ class FileStorage:
             return len(self.__objects)
 
     def close(self):
-        """Call reload() method for deserializing the JSON file to objects"""
+        """call reload() method for deserializing the JSON file to objects"""
         self.reload()

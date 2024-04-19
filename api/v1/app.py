@@ -2,7 +2,7 @@
 """Main module of the Flask app."""
 
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, make_response
 from os import getenv
 from api.v1.views import app_views
 
@@ -12,17 +12,17 @@ host = getenv('HBNB_API_HOST', '0.0.0.0')
 port = getenv('HBNB_API_PORT', '5000')
 
 
-@app.errorhandler(404)
-def not_found(error):
-    """Handler for 404 errors."""
-    return jsonify({"error": "Not found"}), 404
-
-
 @app.teardown_appcontext
 def close_storage(exception):
     """Close the storage on teardown."""
     from models import storage
     storage.close()
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handler for 404 errors."""
+    return make_response(jsonify({'error': "Not found"}), 404)
 
 
 if __name__ == '__main__':

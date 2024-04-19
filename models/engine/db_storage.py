@@ -1,9 +1,9 @@
 # models/engine/db_storage.py
 
 #!/usr/bin/python3
-# """
-# Contains the class DBStorage
-# """
+"""
+Contains the class DBStorage
+"""
 
 import models
 from models.amenity import Amenity

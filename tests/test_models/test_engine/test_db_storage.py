@@ -5,7 +5,7 @@ Contains the TestDBStorageDocs and TestDBStorage classes
 
 from datetime import datetime
 import inspect
-import models
+from models import storage
 from models.engine import db_storage
 from models.amenity import Amenity
 from models.base_model import BaseModel
@@ -73,12 +73,12 @@ class TestDBStorage(unittest.TestCase):
 
     def setUp(self):
         """Set up for tests"""
-        models.storage._DBStorage__session.close()
-        models.storage._DBStorage__session = models.storage._DBStorage__session()
+        from models import storage
+        storage.close()
 
     def tearDown(self):
         """Tear down"""
-        models.storage._DBStorage__session.close()
+        storage.close()
 
     def test_get_count(self):
         """Test if get and count methods are correctly implemented"""

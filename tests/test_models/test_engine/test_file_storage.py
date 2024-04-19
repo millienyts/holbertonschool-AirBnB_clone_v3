@@ -106,5 +106,6 @@ class TestFileStorage(unittest.TestCase):
         # Check if the retrieved object is the same as the original object
         self.assertIs(retrieved_obj, obj)
 
+
 if __name__ == '__main__':
     unittest.main()

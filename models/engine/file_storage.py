@@ -1,9 +1,9 @@
 # models/engine/file_storage.py
 
 #!/usr/bin/python3
-"""
-Contains the class FileStorage
-"""
+# """
+# Contains the class FileStorage
+# """
 
 import json
 from models.base_model import BaseModel

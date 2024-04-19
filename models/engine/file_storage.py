@@ -1,5 +1,8 @@
 #!/usr/bin/python3
-# This module defines the FileStorage class for serializing and deserializing instances to JSON files.
+"""
+    This module defines the FileStorage class for
+    serializing and deserializing instances to JSON files
+"""
 
 import json
 from models.base_model import BaseModel
@@ -22,7 +25,8 @@ classes = {
 
 
 class FileStorage:
-    """Serializes instances to a JSON file and deserializes JSON file to instances"""
+    """Serializes instances to a JSON file and
+    deserializes JSON file to instances"""
 
     __file_path = "file.json"
     __objects = {}
@@ -42,11 +46,14 @@ class FileStorage:
             json.dump({k: v.to_dict() for k, v in self.__objects.items()}, f)
 
     def reload(self):
-        """Deserializes the JSON file to __objects (only if the JSON file exists;
+        """Deserializes the JSON file to __objects
+        (only if the JSON file exists;
         otherwise, do nothing)."""
         try:
             with open(self.__file_path, mode="r", encoding="utf-8") as f:
-                self.__objects = {k: BaseModel(**v) for k, v in json.load(f).items()}
+                self.__objects = {
+                    k: BaseModel(**v) for k, v in json.load(f).items()
+                    }
         except FileNotFoundError:
             pass
 
@@ -66,7 +73,9 @@ class FileStorage:
     def count(self, cls=None):
         """Count number of objects in storage"""
         if cls:
-            return sum(1 for obj in self.__objects.values() if isinstance(obj, cls))
+            return sum(
+                1 for obj in self.__objects.values() if isinstance(obj, cls)
+                )
         else:
             return len(self.__objects)
 

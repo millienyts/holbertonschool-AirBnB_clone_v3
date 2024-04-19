@@ -1,3 +1,8 @@
+#!/usr/bin/python3
+"""
+Module to handle places API endpoints
+"""
+
 from api.v1.views import app_views
 from flask import abort, jsonify, request
 from models import storage, Place, City, State, Amenity
@@ -48,3 +53,15 @@ def search_places():
         filtered_places = [place for place in filtered_places if all(amenity_id in place.amenities for amenity_id in amenities)]
 
     return jsonify([place.to_dict() for place in filtered_places])
+
+# Check if request body is empty
+if not data:
+    abort(400, 'Empty JSON')
+
+# Check if request body is valid JSON
+try:
+    states = data['states']
+    cities = data['cities']
+    amenities = data['amenities']
+except KeyError:
+    abort(400, 'Invalid JSON')

@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+"""
+Contains the class FileStorage
+"""
+
 import json
 from models.base_model import BaseModel
 from models.amenity import Amenity

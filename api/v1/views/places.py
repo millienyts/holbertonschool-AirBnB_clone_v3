@@ -24,9 +24,11 @@ def search_places():
     cities = data.get('cities', [])
     amenities = data.get('amenities', [])
 
-    # Retrieve all places if JSON body is empty or each list of all keys are empty
-    if not states and not cities and not amenities:
-        return jsonify([])  # Return empty list when JSON is empty
+    # Check if JSON data is empty
+    if not (states or cities or amenities):
+        # Retrieve all places
+        places = storage.all(Place).values()
+        return jsonify([place.to_dict() for place in places])
 
     # Initialize empty list to store filtered places
     filtered_places = []

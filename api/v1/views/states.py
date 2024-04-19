@@ -77,6 +77,9 @@ def put_state(state_id):
 
     state = storage.get(State, state_id)
 
+    if not request.is_json:
+        abort(400, description="Not a JSON")
+
     if not state:
         abort(404)
 

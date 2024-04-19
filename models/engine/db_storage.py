@@ -1,9 +1,5 @@
-# models/engine/db_storage.py
-
 #!/usr/bin/python3
-"""
-Contains the class DBStorage
-"""
+# This module contains the class DBStorage for interacting with the MySQL database.
 
 import models
 from models.amenity import Amenity

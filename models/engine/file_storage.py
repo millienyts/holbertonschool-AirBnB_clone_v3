@@ -1,9 +1,5 @@
-# models/engine/file_storage.py
-
 #!/usr/bin/python3
-"""
-Contains the class FileStorage
-"""
+# This module defines the FileStorage class for serializing and deserializing instances to JSON files.
 
 import json
 from models.base_model import BaseModel

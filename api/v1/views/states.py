@@ -90,4 +90,4 @@ def put_state(state_id):
         if key not in ignore:
             setattr(state, key, value)
     storage.save()
-    return make_response(jsonify(state.to_dict()), 200)
+    return jsonify(state.to_dict()), 200
